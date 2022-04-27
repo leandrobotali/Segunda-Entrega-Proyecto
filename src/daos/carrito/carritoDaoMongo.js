@@ -2,6 +2,9 @@ import {carritoModel, prodCarritoModel} from '../../contenedores/contenedorMongo
 
 const carritos = {};
 
+//---------------------------------------
+//Functions
+
 carritos.CarritoNuevo = async() =>{
     try {
         const newCarrito = new carritoModel({
