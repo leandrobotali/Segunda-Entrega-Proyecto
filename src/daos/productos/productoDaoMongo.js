@@ -5,68 +5,75 @@ const producto = {};
 //------------------------------------------
 //functions
 
-producto.getAll = async() => {
+producto.getAll = async(req, res, next) => {
     try{
         const getAllProd = await productosModel.find({})
-        return getAllProd
+        res.status(201).json(getAllProd)
     }catch{
-        return{'messaje':'error intentelo de nuevo'}
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
 }
 
-producto.save = async(timestamp, nombre, descripcion, codigo, foto, precio, stock) => {
+producto.save = async(req, res, next) => {
     try{
-        const newProducto = new productosModel({
-            "nombre": nombre,
-            "descripcion": descripcion,
-            "codigo": codigo,
-            "foto": foto,
-            "precio": precio,
-            "stock": stock
-        })
-        await newProducto.save()
-        .then(()=>{console.log('producto agregado');})
+        if (req.body.nombre !== undefined && req.body.descripcion !== undefined && req.body.codigo !== undefined && req.body.foto !== undefined && req.body.precio !== undefined &&  req.body.stock !== undefined) {
+
+            const newProducto = new productosModel({
+                "nombre": req.body.nombre,
+                "descripcion": req.body.descripcion,
+                "codigo": req.body.codigo,
+                "foto": req.body.foto,
+                "precio": req.body.precio,
+                "stock": req.body.stock
+            })
+            await newProducto.save()
         
-        return{'messaje':'producto agregado'}
+            res.status(201).json({'messaje':'Producto Agregado'})
+        }
+        else{
+            res.status(500).json( {'messaje':'Error de datos'} )
+        }
+
     }catch (err){
-        console.log(err);
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
     
 }
 
-producto.getById = async(id) => {
+producto.getById = async(req, res, next) => {
     try{
-        const getByIdProd = await productosModel.find({_id:id})
-        return getByIdProd
+        const getByIdProd = await productosModel.find({_id:req.params.id})
+        res.status(201).json(getByIdProd)
     }catch{
-        return{'messaje':'producto no encontrado'}
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
 }
 
-producto.updateById = async(id, timestamp, nombre, descripcion, codigo, foto, precio, stock) => {
+producto.updateById = async(req, res, next) => {
     try{
-        const getUpdProd = await productosModel.updateOne({_id:id},{
+        //res.status(201).send(await Producto.updateById(req.params.id, req.body.timestamp, req.body.nombre, req.body.descripcion, req.body.codigo, req.body.foto, req.body.precio, req.body.stock))
+        const getUpdProd = await productosModel.updateOne({_id:req.params.id},{
             $set:{
-                "nombre": nombre,
-                "descripcion": descripcion,
-                "codigo": codigo,
-                "foto": foto,
-                "precio": precio,
-                "stock": stock
+                "nombre": req.body.nombre,
+                "descripcion":  req.body.descripcion,
+                "codigo": req.body.codigo,
+                "foto": req.body.foto,
+                "precio": req.body.precio,
+                "stock": req.body.stock
             }
         })
-        return{'messaje':'producto actualizado'} 
+        res.status(201).json({'messaje':'Producto Actualizado'})
     }catch{
-        return{'messaje':'error de datos'}
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
 }
 
-producto.deleteById = async(id) => {
+producto.deleteById = async(req, res, next) => {
     try{
-        const getDelProd = await productosModel.deleteOne({_id:id})
-        return{'messaje':'producto borrado'} 
+        const getDelProd = await productosModel.deleteOne({_id:req.params.id})
+        res.status(201).json({'messaje':'Producto Borrado'})
     }catch{
-        return{'messaje':'producto no encontrado'}
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
 }
 

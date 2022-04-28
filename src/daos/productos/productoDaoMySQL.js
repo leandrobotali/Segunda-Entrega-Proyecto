@@ -5,68 +5,87 @@ const producto = {};
 //------------------------------------------
 //functions
 
-producto.getAll = async() => {
+producto.getAll = async(req, res, next) => {
     try{
         const arrayProductos = await knex('productos')
-        return arrayProductos
+        res.status(201).json(arrayProductos)
     }catch{
-        return{'messaje':'error intentelo de nuevo'}
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
 }
 
-producto.save = async(timestamp, nombre, descripcion, codigo, foto, precio, stock) => {
-    try{
-        let objeto = {
-            "timestamp": timestamp,
-            "nombre": nombre,
-            "descripcion": descripcion,
-            "codigo": codigo,
-            "foto": foto,
-            "precio": precio,
-            "stock": stock
+producto.save = async (req, res, next) => {
+    try {
+        if (req.body.nombre !== undefined && req.body.descripcion !== undefined && req.body.codigo !== undefined && req.body.foto !== undefined && req.body.precio !== undefined && req.body.stock !== undefined) {
+            let fyh = new Date();
+
+            let fyhActual = fyh.getDate() + '/' + (fyh.getMonth() + 1) + '/' + fyh.getFullYear() + " - " + fyh.getHours() + ':' + fyh.getMinutes() + ':' + fyh.getSeconds()
+            let objeto = {
+                "timestamp": fyhActual,
+                "nombre": req.body.nombre,
+                "descripcion": req.body.descripcion,
+                "codigo": req.body.codigo,
+                "foto": req.body.foto,
+                "precio": req.body.precio,
+                "stock": req.body.stock
+            }
+            await knex('productos').insert(objeto)
+
+            res.status(201).json({'messaje':'Producto Agregado'})
         }
-        await knex('productos').insert(objeto)
-        
-        return objeto
-    }catch{
-        return{'messaje':'error de datos'}
-    }
-    
-}
-
-producto.getById = async(id) => {
-    try{
-        return await knex('productos').where("id", id)
-    }catch{
-        return{'messaje':'producto no encontrado'}
-    }
-}
-
-producto.updateById = async(id, timestamp, nombre, descripcion, codigo, foto, precio, stock) => {
-    try{
-        let objeto = {
-            "timestamp": timestamp,
-            "nombre": nombre,
-            "descripcion": descripcion,
-            "codigo": codigo,
-            "foto": foto,
-            "precio": precio,
-            "stock": stock
+        else {
+            res.status(500).json({ 'messaje': 'Error de datos' })
         }
-        await knex('productos').where("id", id).update(objeto)
-        
-        return objeto
+
+    } catch (err) {
+        res.status(500).json( { message: `Server Error ${err}`} )
+    }
+
+
+}
+
+producto.getById = async(req, res, next) => {
+    try{
+        res.status(201).json(await knex('productos').where("id", req.params.id))
     }catch{
-        return{'messaje':'error de datos'}
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
 }
 
-producto.deleteById = async(id) => {
+producto.updateById = async (req, res, next) => {
+    try {
+        if (req.body.nombre !== undefined && req.body.descripcion !== undefined && req.body.codigo !== undefined && req.body.foto !== undefined && req.body.precio !== undefined && req.body.stock !== undefined) {
+            let fyh = new Date();
+
+            let fyhActual = fyh.getDate() + '/' + (fyh.getMonth() + 1) + '/' + fyh.getFullYear() + " - " + fyh.getHours() + ':' + fyh.getMinutes() + ':' + fyh.getSeconds()
+            let objeto = {
+                "timestamp": fyhActual,
+                "nombre": req.body.nombre,
+                "descripcion": req.body.descripcion,
+                "codigo": req.body.codigo,
+                "foto": req.body.foto,
+                "precio": req.body.precio,
+                "stock": req.body.stock
+            }
+            await knex('productos').where("id", req.params.id).update(objeto)
+
+            res.status(201).json({'messaje':'Producto Actualizado'})
+        }
+        else {
+            res.status(500).json({ 'messaje': 'Error de datos' })
+        }
+
+    } catch (err) {
+        res.status(500).json( { message: `Server Error ${err}`} )
+    }
+}
+
+producto.deleteById = async(req, res, next) => {
     try{
-        await knex('productos').where("id", id).del()
-        return{'messaje':'producto borrado'} 
+        await knex('productos').where("id", req.params.id).del()
+        res.status(201).json({'messaje':'Producto Borrado'}) 
     }catch{
-        return{'messaje':'producto no encontrado'}
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
 }
 

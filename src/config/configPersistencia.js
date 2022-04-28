@@ -10,7 +10,7 @@ import carritoDaoMongoDB from '../daos/carrito/carritoDaoMongo.js'
 
 //--------------------------------------------
 //tipos de persistencias: memoria, archivo, mySQL, MongoDB
-let tipoPersistencia = "MongoDB"
+let tipoPersistencia = "dbSQL"
 
 let Producto,Carrito;
 

@@ -2,7 +2,7 @@ import knex from '../../contenedores/contenedorMySQL.js'
 
 const carritos = {};
 
-carritos.CarritoNuevo = async() =>{
+carritos.CarritoNuevo = async(req, res, next) =>{
     try {
         let fyh = new Date();
 
@@ -11,53 +11,58 @@ carritos.CarritoNuevo = async() =>{
             "timestamp" : fyhActual
         }
         await knex('carrito').insert(objeto)
-        return{'messaje':'Carrito Creado'}
+        res.status(201).json({'messaje':'Carrito Creado'})
 
     } catch (err) {
-        console.log(err);
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
 }
 
-carritos.getCarritoById = async(id) => {
+carritos.getCarritoById = async(req, res, next) => {
     try {
-        return knex('prodCarrito').where("id", id)
+        const prodCarrito = await knex('prodCarrito').where("id", req.params.id)
+        res.status(201).json(prodCarrito)
     } catch (err) {
-        console.log(err);
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
 }
 
-carritos.agregarProd= async(id,idProd, nombreProd, imagen, Precio,stock) => {
+carritos.agregarProd = async(req, res, next) => {
     try {
-        let objeto = {
-            "id": id,
-            "idProd": idProd,
-            "nombreProd": nombreProd,
-            "imagen": imagen,
-            "Precio": Precio,
-            "stock": stock
+        if (req.body.idProd != undefined && req.body.nombreProd != undefined && req.body.imagen != undefined && req.body.Precio != undefined && req.body.stock != undefined) {
+            let objeto = {
+                "id": req.params.id,
+                "idProd": req.body.idProd,
+                "nombreProd": req.body.nombreProd,
+                "imagen": req.body.imagen,
+                "Precio": req.body.Precio,
+                "stock": req.body.stock
+            }
+            await knex('prodCarrito').insert(objeto)
+            res.status(201).json({ 'messaje': 'Producto agregado' })
+        } else {
+            res.status(400).json({ error: "datos incorrectos" })
         }
-        await knex('prodCarrito').insert(objeto)
-        return {"messaje":"Producto agregado"}
     } catch (err) {
-        console.log(err);
+        res.status(500).json({ message: `Server Error ${err}` })
     }
 }
 
-carritos.deleteById = async(id) => {
+carritos.deleteById = async(req, res, next) => {
     try {
-        await knex('carrito').where("id", id).del()
-        return{'messaje':'Carrito borrado'} 
+        await knex('carrito').where("id", req.params.id).del()
+        res.status(201).json({ 'messaje': 'Carrito Borrado' }) 
     } catch (err) {
-        console.log(err);
+        res.status(500).json({ message: `Server Error ${err}` })
     }
 }
 
-carritos.deleteByIdProd = async(id, idProd) => {
+carritos.deleteByIdProd = async(req, res, next) => {
     try {
-        await knex('prodCarrito').where("id", id).andWhere("idProd", idProd).del()
-        return{'messaje':'producto borrado'} 
+        await knex('prodCarrito').where("id", req.params.id).andWhere("idProd", req.params.id_Prod).del()
+        res.status(201).json({ 'messaje': 'Producto Borrado' })
     } catch (err) {
-        console.log(err);
+        res.status(500).json({ message: `Server Error ${err}` })
     }
 }
 export default carritos;

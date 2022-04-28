@@ -38,56 +38,91 @@ let Productos = [{
 //------------------------------------------
 //functions
 
-producto.getAll = () =>{
-    return Productos
-}
-
-producto.save = (timestamp, nombre, descripcion, codigo, foto, precio, stock) => {
-    let obj = new Producto(timestamp, nombre, descripcion, codigo, foto, precio, stock)
-
-    let idMasAlto = 0;
-
-    if (Productos.length > 0) {
-        idMasAlto = Productos.reduce((acum, proximo) => acum > proximo.id ? acum : proximo.id, 0);
+producto.getAll = (req, res, next) => {
+    try{
+        res.status(201).json(Productos)
+    }catch{
+        res.status(500).json( { message: `Server Error ${err}`} )
     }
-    obj.id = parseInt(idMasAlto) + 1
-
-    Productos.push(obj);
-
-    return obj
 }
 
-producto.getById = (id) => {
-    const objError = { "error": "producto no encontrado" }
-    const find = Productos.find(producto => producto.id == id) || objError;
-    return find
-}
+producto.save = (req, res, next) => {
+    try {
+        if (req.body.nombre !== undefined && req.body.descripcion !== undefined && req.body.codigo !== undefined && req.body.foto !== undefined && req.body.precio !== undefined && req.body.stock !== undefined) {
+            let fyh = new Date();
 
-producto.updateById = (id, timestamp, nombre, descripcion, codigo, foto, precio, stock) => {
-    const objError = { "error": "producto no encontrado" }
-    const find = Productos.find(producto => producto.id == id) || objError;
-    if (find !== objError) {
-        find.timestamp = timestamp;
-        find.nombre = nombre;
-        find.descripcion = descripcion;
-        find.codigo = codigo;
-        find.foto = foto;
-        find.precio = precio;
-        find.stock = stock;;
+            let fyhActual = fyh.getDate() + '/' + ( fyh.getMonth() + 1 ) + '/' + fyh.getFullYear() + " - " + fyh.getHours() + ':' + fyh.getMinutes() + ':' + fyh.getSeconds()
+            let obj = new Producto(fyhActual, req.body.nombre, req.body.descripcion, req.body.codigo, req.body.foto, req.body.precio, req.body.stock)
+
+            let idMasAlto = 0;
+
+            if (Productos.length > 0) {
+                idMasAlto = Productos.reduce((acum, proximo) => acum > proximo.id ? acum : proximo.id, 0);
+            }
+            obj.id = parseInt(idMasAlto) + 1
+
+            Productos.push(obj);
+
+            res.status(201).json({'messaje':'Producto Agregado'})
+        }else {
+                res.status(500).json({ 'messaje': 'Error de datos' })
+        }
+    } catch {
+        res.status(500).json({ message: `Server Error ${err}` })
     }
-
-    return find
 }
 
-producto.deleteById = (id) => {
-    const objError = { "error": "producto no encontrado" }
-    const find = Productos.find(producto => producto.id == id) || objError;
-    if (find !== objError) {
-        Productos = Productos.filter(producto => producto.id != id);
+producto.getById = (req, res, next) => {
+    try {
+        const objError = { "error": "producto no encontrado" }
+        const find = Productos.find(producto => producto.id == req.params.id) || objError;
+        res.status(201).json(find)
+    } catch {
+        res.status(500).json({ message: `Server Error ${err}` })
+    }
+}
 
-        return Productos
-    } else {
-        return find
+producto.updateById = (req, res, next) => {
+    try {
+        if (req.body.nombre !== undefined && req.body.descripcion !== undefined && req.body.codigo !== undefined && req.body.foto !== undefined && req.body.precio !== undefined && req.body.stock !== undefined) {
+            let fyh = new Date();
+
+            let fyhActual = fyh.getDate() + '/' + (fyh.getMonth() + 1) + '/' + fyh.getFullYear() + " - " + fyh.getHours() + ':' + fyh.getMinutes() + ':' + fyh.getSeconds()
+            const objError = { "error": "producto no encontrado" }
+            const find = Productos.find(producto => producto.id == req.params.id) || objError;
+            if (find !== objError) {
+                find.timestamp = fyhActual;
+                find.nombre = req.body.nombre;
+                find.descripcion = req.body.descripcion;
+                find.codigo = req.body.codigo;
+                find.foto = req.body.foto;
+                find.precio = req.body.precio;
+                find.stock = req.body.stock;;
+            }
+
+            res.status(201).json(find)
+        } else {
+            res.status(500).json({ 'messaje': 'Error de datos' })
+        }
+    } catch {
+        res.status(500).json({ message: `Server Error ${err}` })
+    }
+}
+
+producto.deleteById = (req, res, next) => {
+    try {
+        const objError = { "error": "producto no encontrado" }
+        const find = Productos.find(producto => producto.id == req.params.id) || objError;
+        if (find !== objError) {
+            Productos = Productos.filter(producto => producto.id != req.params.id);
+
+            res.status(201).json(Productos)
+        } else {
+            res.status(201).json(find)
+        }
+
+    } catch {
+        res.status(500).json({ message: `Server Error ${err}` })
     }
 }
 
